@@ -45,6 +45,13 @@ button{
     align-items: center;
 }
 
+.loader{
+    width: 100vw; 
+    height : 300px; 
+    display : grid; 
+    place-content : center;
+}
+
 ul{
     list-style: none;
     font-weight: bold;

@@ -1,6 +1,7 @@
 import { useContext } from "react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { ClipLoader } from "react-spinners"; 
 import toastify from "toastify-js"
 import { UserContext } from "../../authentication/usercontext"
 import { search, defaultMovies } from "../../services/omdbService"
@@ -15,36 +16,34 @@ const MovieBody = () => {
     const {username} = useContext(UserContext)
     const navigate = useNavigate()
 
+    const handleReload = async() => {
+        setSearchTerm("")
+        await fetchAllMovies()
+    }
+
     const handleSearch = async() => {
         try{
-                const response = await search(searchTerm)
-                setMovies(response)
+         setIsLoading(true)       
+        const response = await search(searchTerm)
+        setMovies(response)
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 2000)
+                   
         }catch(error){
             console.error("error fetching movie", error)
-            fetchAllMovies()
+            await fetchAllMovies()
         }
     }
 
     const fetchAllMovies = async () => {
         setIsLoading(true)
         const response = await defaultMovies()
-        setMovies(response)        
+        setMovies(response) 
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 2000)      
       };
-
-    // const fetchAllMovies = async () => {
-    //     try {
-    //       const response = await defaultMovies();
-    //       setMovies(response);
-    //     } catch (error) {
-    //       console.error("Error fetching movies:", error);
-    //       toastify({
-    //         text: "Error fetching movies",
-    //         duration: 3000,
-    //         gravity: "top",
-    //         backgroundColor: "red"
-    //       }).showToast();
-    //     } 
-    //   };
 
     useEffect(() => {
         fetchAllMovies()
@@ -75,7 +74,17 @@ const MovieBody = () => {
                 </div>      
             </div>
             <div className="movie-list-container">
-                   {movies.map((movie) => (
+                   { isLoading &&
+                    <div className="loader" >
+                        <ClipLoader color="white" 
+                                    loading={isLoading} 
+                                    size={20} /> 
+                    </div>
+                     
+                   } 
+                   { !isLoading &&
+                   <>
+                   { (movies && movies?.map((movie) => (
                             <ul key={movie.imdbID}>
                                 <li>
                                     <img src={movie.Poster} alt="movie.Title" />
@@ -83,7 +92,15 @@ const MovieBody = () => {
                                 </li>
                             </ul>
                         )
-                    )}                         
+                    ))}
+                    {
+                        !movies && <p>failed to fetch <span style={{cursor:"pointer"}} 
+                                                            onClick={() => handleReload()}>
+                                                                Reload
+                                                      </span> 
+                                    </p>
+                    }
+                </> }                        
                 </div> 
                 <Footer />
         </>
