@@ -9,7 +9,6 @@ export const search = async(searchTerm) => {
             return data.Search
            }catch(error){
         console.error("error fetching data", error)
-        defaultMovies()
     }
 }
 
@@ -21,7 +20,6 @@ export const defaultMovies = async () => {
         const data = await response.json();
         console.log(data)
         if (data.Response === "True") {
-          console.log(data.search)
           return data.Search
         } 
       } catch (error) {
